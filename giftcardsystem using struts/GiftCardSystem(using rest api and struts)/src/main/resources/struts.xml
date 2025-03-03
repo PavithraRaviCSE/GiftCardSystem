@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+    "https://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+
+	<constant name="rest"
+		value="org.apache.struts2.rest.RestActionMapper" />
+	<constant name="struts.mapper.class"
+		value="org.apache.struts2.dispatcher.mapper.PrefixBasedActionMapper" />
+	<constant name="struts.mapper.prefixMapping"
+		value="/admin:rest, /user:rest, :struts" />
+	<constant name="struts.action.excludePattern" value="/css/.*,/js/.*"/>
+		
+
+	<package name="pack1" extends="json-default" namespace="/">
+
+		<interceptors>
+			<interceptor name="auth"
+				class="com.example.interceptor.UserAuthInterceptor"></interceptor>
+		</interceptors>
+
+		<action name="refreshAccessToken"
+			class="com.example.controller.RefreshTokenController"
+			method="refreshAccessToken">
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+		</action>
+		<action name="logout"
+			class="com.example.controller.RefreshTokenController"
+			method="deleteCookie">
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+		</action>
+		<action name="purchase"
+			class="com.example.controller.PurchaseController">
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+
+		</action>
+		<action name="login"
+			class="com.example.controller.LoginController" method="login">
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+		</action>
+
+		<action name="SampleController"
+			class="com.example.controller.SampleController">
+			<result type="json" />
+		</action>
+		<action name="*">
+			<result>/{1}.html</result>
+		</action>
+
+	</package>
+
+	<package name="admin-pack" namespace="/admin"
+		extends=" rest-default, json-default">
+		<interceptors>
+			<interceptor name="userInter"
+				class="com.example.interceptor.SessionInterceptor" />
+			<interceptor-stack name="auth">
+				<interceptor-ref name="json" />
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="userInter" />
+			</interceptor-stack>
+		</interceptors>
+
+
+		<action name="users"
+			class="com.example.controller.AdminController">
+			<interceptor-ref name="auth" />
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+			<result name="accessDenied" type="json">
+				<param name="root">error</param>
+			</result>
+
+
+		</action>
+
+
+
+	</package>
+
+
+
+	<package name="user-pack" namespace="/user"
+		extends=" rest-default, json-default">
+
+
+		<interceptors>
+			<interceptor name="userInter"
+				class="com.example.interceptor.SessionInterceptor" />
+			<interceptor-stack name="auth">
+				<interceptor-ref name="json" />
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="userInter" />
+			</interceptor-stack>
+		</interceptors>
+
+
+		<action name="purchaseData"
+			class="com.example.controller.PurchaseDataController">
+			<interceptor-ref name="auth" />
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+			<result name="accessDenied" type="json">
+				<param name="root">error</param>
+			</result>
+		</action>
+
+		<action name="changePassword"
+			class="com.example.controller.UserController">
+			<interceptor-ref name="auth" />
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+			<result name="accessDenied" type="json">
+				<param name="root">error</param>
+			</result>
+		</action>
+
+		<action name="cards"
+			class="com.example.controller.UserCardController">
+			<interceptor-ref name="auth" />
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+			<result name="accessDenied" type="json">
+				<param name="root">error</param>
+			</result>
+
+		</action>
+		<action name="cardTransactions"
+			class="com.example.controller.UserCardTransactionController">
+			<interceptor-ref name="auth" />
+			<result type="json">
+				<param name="root">response</param>
+			</result>
+			<result name="accessDenied" type="json">
+				<param name="root">error</param>
+			</result>
+		</action>
+
+
+	</package>
+</struts>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Page</title>
+
+<link rel="stylesheet" href="css/headerStyle.css">
+<style>
+
+
+
+
+</style>
+</head>
+<body>
+
+	<div class="header">
+		<div class="nav-links">
+			<a href="UserHome" class="nav-link">home</a>
+			<a href="PurchaseChart" class="nav-link">chart</a>
+			<a href="CreateCard" class="nav-link">Create
+				Gift Card</a> <a href="ViewCard" class="nav-link">View Cards</a> <a
+				href="ViewTransaction" class="nav-link">View Card Transactions</a> <a
+				href="TopUpCard" class="nav-link">Top-Up Card</a> <a href="BlockCard" class="nav-link">Block
+				Card</a> <a href="ChangePassword" class="nav-link">Change Password</a><a href="#" onclick="logout()">Logout</a>
+		</div>
+	</div>
+	<h1>Welcome to the Home Page......</h1>
+	<p id="welcomeMessage"></p>
+
+
+
+<script type="text/javascript" src="js/userScript.js"></script>
+<script type="text/javascript">
+
+async function fun(){
+	
+	await validateToken();
+	
+}
+
+
+
+window.onload = fun;
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>View Gift Cards</title>
+
+<link rel="stylesheet" href="css/headerStyle.css">
+
+<link rel="stylesheet" href="css/tableStyle.css">
+<!-- 
+<script type="text/javascript" src="js/script.js"></script> -->
+
+</head>
+<body>
+
+	<div class="header">
+		<div class="nav-links">
+			<a href="AdminHome" class="nav-link">home</a> <a href="AddUser"
+				class="nav-link">CreateUser</a> <a href="ViewUser" class="nav-link">ViewUser</a>
+			<a href="SearchUser" class="nav-link">SearchUser</a> <a
+				href="CreditUser" class="nav-link">Credit</a> <a href="#"
+				onclick="logout()">Logout</a>
+		</div>
+	</div>
+
+
+	<div class="table-container">
+
+		<table id="userTableBody">
+			<thead>
+				<tr>
+					<th>Account Number</th>
+					<th>User Name</th>
+					<th>User Type</th>
+					<th>Balance</th>
+					<th>DOB</th>
+					<th>Mobile</th>
+
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+
+	</div>
+
+
+
+	<script type="text/javascript" src="js/script.js"></script>
+
+	<script>
+
+	
+
+	window.onload = viewUser;
+
+	
+async function viewUser() {
+    try {
+    	
+    	await validateToken();
+    	const  token = sessionStorage.getItem("token");
+    	console.log(token);
+      
+        const response = await fetch("http://localhost:8080/GiftCardSystem/admin/users", {
+            method: "GET",
+            headers: {/* 
+                "Content-Type": "application/json", */
+                "Authorization": "Bearer " + token
+            },
+        credentials: "include"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Fetched Data:", data);
+
+        if (data.userList) {
+            showUser(data);
+        } else {
+            console.error("No user available");
+        } 
+    } catch (error) {
+        console.error("Error in fetching user:" + error);
+    }
+}
+
+
+function showUser(response){
+	
+	let tableBody = document.getElementById("userTableBody");
+
+	response.userList.forEach(user => {
+	    let row = `<tr>
+	        <td>${user.accountNumber}</td>
+	        <td>${user.userName}</td>
+	        <td>${user.userType}</td>
+	        <td>${user.balance}</td>
+	        <td>${user.dob.dayOfMonth} ${user.dob.month} ${user.dob.year}</td>
+	        <td>${user.mobile}</td>
+	    </tr>`;
+	    tableBody.innerHTML += row;
+	});
+}
+
+
+
+
+
+</script>
+
+</body>
+</html>

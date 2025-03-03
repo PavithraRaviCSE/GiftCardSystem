@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transaction History</title>
+
+<link rel="stylesheet" href="css/headerStyle.css">
+
+<link rel="stylesheet" href="css/tableStyle.css">
+
+</head>
+<body>
+	<div class="header">
+		<div class="nav-links">
+			<a href="UserHome" class="nav-link">home</a><a href="PurchaseChart" class="nav-link">chart</a> 
+			<a href="CreateCard" class="nav-link">Create Gift Card</a> <a href="ViewCard"
+				class="nav-link">View Cards</a> <a href="ViewTransaction"
+				class="nav-link">View Card Transactions</a> <a href="TopUpCard"
+				class="nav-link">Top-Up Card</a> <a href="BlockCard"
+				class="nav-link">Block Card</a> <a href="ChangePassword"
+				class="nav-link">Change Password</a><a href="#" onclick="logout()">Logout</a>
+		</div>
+	</div><!-- 
+	<button onclick="showGiftCards()">Show Gift Cards</button> -->
+	<div>
+		<div class="table-container">
+			<table>
+				<thead>
+					<tr>
+						<th>GiftCardId</th>
+						<th>CardNumber</th>
+						<th>Pin</th>
+						<th>Amount</th>
+						<th>Status</th>
+						<th>View Transaction</th>
+					</tr>
+				</thead>
+				<tbody id="giftCardTableBody">
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="table-container">
+		<div id="transactionSection" style="display: none;">
+			
+			<table border="1">
+				<thead>
+					<tr>
+						<th>Transaction ID</th>
+						<th>Gift Card ID</th>
+						<th>Amount</th>
+						<th>balance</th>
+						<th>Type</th>
+						<th>Date</th>
+					</tr>
+				</thead>
+				<tbody id="transactionTableBody"></tbody>
+			</table>
+		</div>
+
+	</div>
+
+
+
+	<script type="text/javascript" src="js/userScript.js"></script>
+
+	<script>
+	
+	
+    window.onload = showGiftCards;
+	
+
+    async function showGiftCards() {
+    	await validateToken();
+    	
+        try {
+
+            const token = sessionStorage.getItem("token");
+            const response = await fetch("http://localhost:8080/GiftCardSystem/user/cards", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            //debugger;
+            const responseText = await response.text();  // Get response as text for debugging
+            console.log("Raw Response:", responseText);
+
+            // Parse JSON only if the response is valid
+            const data = JSON.parse(responseText);
+
+            if (!data || !data.giftCardList) {
+                throw new Error("Invalid response format");
+            }
+
+            const giftCardList = data.giftCardList;
+
+            if (Array.isArray(giftCardList)) {
+                const giftCardTableBody = document.getElementById("giftCardTableBody");
+                giftCardTableBody.innerHTML = '';
+                giftCardList.forEach(giftCard => {
+                    let row = `<tr>
+                        <td>${giftCard.giftCardId}</td>
+                        <td>${giftCard.giftCardNumber}</td>
+                        <td>${giftCard.pin}</td>
+                        <td>${giftCard.balance}</td>
+                        <td>${giftCard.status}</td>
+                        <td><button onclick="viewTransactions(${giftCard.giftCardId})">View Transactions</button></td>
+                    </tr>`;
+                    giftCardTableBody.innerHTML += row;
+                });
+            } else {
+                console.error('giftCardList is not an array or is undefined');
+                alert('Failed to load gift cards');
+            }
+        } catch (error) {
+            console.error('Error fetching gift cards:'+ error);
+            alert('Failed to load gift cards');
+        }
+    }
+
+    
+    async function viewTransactions(giftCardId) {
+    	
+    	await validateToken();
+
+        const token = sessionStorage.getItem("token");
+        try {
+            if (!giftCardId) {
+                alert("Invalid Gift Card ID.");
+                return;
+            }
+            
+           /*  const formData = new URLSearchParams();
+    	    formData.append("cardId", giftCardId);
+    	    
+    	    
+ */
+ 			
+            const response = await fetch(`http://localhost:8080/GiftCardSystem/user/cardTransactions/${giftCardId}`, {
+                method: "get",
+
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Authorization": "Bearer " + token
+                }
+            ,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const responseText = await response.text();
+            console.log("Raw Response:", responseText); 
+
+            const data = JSON.parse(responseText);
+
+            if (!data || !data.GiftcardTransactionList) {
+            	alert("Invalid response format");
+                /* throw new Error("Invalid response format"); */
+                return;
+            }
+
+            const transactionList = data.GiftcardTransactionList;
+
+            if (Array.isArray(transactionList)) {
+                const transactionTableBody = document.getElementById("transactionTableBody");
+                transactionTableBody.innerHTML = '';
+
+                transactionList.forEach(transaction => {
+                    let row = `<tr>
+                        <td>${transaction.transactionId}</td>
+                        <td>${transaction.giftCardId}</td>
+                        <td>${transaction.amountTransferred}</td>
+                        <td>${transaction.balance}</td>
+                        <td>${transaction.transactionType}</td>
+                        <td>${transaction.createdAt}</td>
+                    </tr>`;
+                    transactionTableBody.innerHTML += row;
+                });
+
+                document.getElementById("transactionSection").style.display = "block";
+            } else {
+                console.error('transactionList is not an array or is undefined');
+                alert('Failed to load transactions');
+            }
+        } catch (error) {
+            console.error('Error fetching transactions:', error);
+            alert('Failed to load transactions');
+        }
+    }
+    
+
+</script>
+
+</body>
+</html>
