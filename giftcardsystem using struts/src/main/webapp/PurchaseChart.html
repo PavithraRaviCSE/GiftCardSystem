@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Chart</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<link rel="stylesheet" href="css/headerStyle.css">
+<link rel="stylesheet" href="css/tableStyle.css">
+<style>
+#myChart {
+	display:block;
+	
+	margin-left:auto;
+	margin-right:auto;
+	width: 400px !important;
+	height: 400px !important;
+}
+
+
+
+#pichart {/* 
+	display: flex; */
+	padding:30px;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+</style>
+</head>
+<body>
+
+	<div class="header">
+		<div class="nav-links">
+			<a href="UserHome" class="nav-link">home</a> <a href="PurchaseChart"
+				class="nav-link">chart</a> <a href="CreateCard" class="nav-link">Create
+				Gift Card</a> <a href="ViewCard" class="nav-link">View Cards</a> <a
+				href="ViewTransaction" class="nav-link">View Card Transactions</a> <a
+				href="TopUpCard" class="nav-link">Top-Up Card</a> <a
+				href="BlockCard" class="nav-link">Block Card</a> <a
+				href="ChangePassword" class="nav-link">Change Password</a><a
+				href="#" onclick="logout()">Logout</a>
+		</div>
+	</div>
+
+
+	<!-- <div class="main-container"> -->
+	<div class="table-container">
+		<table>
+			<thead>
+				<tr>
+					<th>GiftCardId</th>
+					<th>CardNumber</th>
+					<th>Pin</th>
+					<th>Amount</th>
+					<th>Status</th>
+					<th>View Transaction</th>
+				</tr>
+			</thead>
+			<tbody id="giftCardTableBody">
+			</tbody>
+		</table>
+	</div>
+
+
+
+
+	<div id=pichart>
+		<h2 id="cardId"></h2><br><br>
+		<canvas id="myChart" width="400" height="400"></canvas>
+	</div>
+	<!-- 
+	</div> -->
+
+	<script type="text/javascript" src="js/userScript.js"></script>
+
+	<script type="text/javascript">
+
+    
+    async function fun(){
+    	
+    	await validateToken();
+    	showGiftCards();
+    	
+    }
+
+    window.onload = fun;
+    async function showGiftCards() {
+    	await validateToken();
+    	
+        try {
+
+            const token = sessionStorage.getItem("token");
+            const response = await fetch("http://localhost:8080/GiftCardSystem/user/cards", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const responseText = await response.text();  
+            console.log("Raw Response:", responseText);
+
+            const data = JSON.parse(responseText);
+
+            if (!data || !data.giftCardList) {
+                throw new Error("Invalid response format");
+            }
+
+            const giftCardList = data.giftCardList;
+
+            if (Array.isArray(giftCardList)) {
+                const giftCardTableBody = document.getElementById("giftCardTableBody");
+                giftCardTableBody.innerHTML = '';
+                giftCardList.forEach(giftCard => {
+                    let row = `<tr>
+                        <td>${giftCard.giftCardId}</td>
+                        <td>${giftCard.giftCardNumber}</td>
+                        <td>${giftCard.pin}</td>
+                        <td>${giftCard.balance}</td>
+                        <td>${giftCard.status}</td>
+                        <td><button onclick="fetchPurchaseData(${giftCard.giftCardId})">viewChart</button></td>
+                    </tr>`;
+                    giftCardTableBody.innerHTML += row;
+                });
+            } else {
+                console.error('giftCardList is not an array or is undefined');
+                alert('Failed to load gift cards');
+            }
+        } catch (error) {
+            console.error('Error fetching gift cards:'+ error);
+            alert('Failed to load gift cards');
+        }
+    }
+
+
+
+        async function fetchPurchaseData(giftCardId) {
+        	await validateToken();
+
+            const token = sessionStorage.getItem("token");
+            try {
+               
+                const response = await fetch(`http://localhost:8080/GiftCardSystem/user/purchaseData/${giftCardId}`, {
+                	method:"GET",
+                	headers: {
+
+                        "Authorization": "Bearer " + token
+                        }
+                });
+                if(!response.ok){
+                	
+                	console.log("error" + response);
+                	return;
+                }
+                
+                
+                let data = await response.json();
+                generateChart(data.purchaseList, giftCardId);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        let chartInstance = null; 
+
+        function generateChart(purchaseList, giftCardId) {
+
+        	  console.log(purchaseList);
+        	    const id = document.getElementById("cardId");
+
+        	    if (purchaseList && purchaseList.length > 0) {
+        	        id.innerText = "CardId: " + giftCardId;
+        	    } else {
+        	        id.innerText = "No purchase found for this ID";
+        	    }
+        	
+            let canvas = document.getElementById("myChart");
+            let ctx = canvas.getContext("2d");
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let categoryMap = {};
+            purchaseList.forEach(purchase => {
+                categoryMap[purchase.purchaseCategory] = 
+                    (categoryMap[purchase.purchaseCategory] || 0) + purchase.amountSpent;
+            });
+
+            let xValues = Object.keys(categoryMap);
+            let yValues = Object.values(categoryMap);
+            let barColors = ["#FF5733", "#3398DB", "#C0392B", "#8E44AD", "#E67E22", "#FFC300", "#28B463"];
+
+            chartInstance = new Chart(canvas, {
+                type: "pie",
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        backgroundColor: barColors,
+                        data: yValues
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "right"
+                        },    
+                        datalabels: {
+                            color: "black", 
+                            anchor: "end", 
+                            align: "start", 
+                            formatter: (value) => `\u20B9${value}`,
+                            font: {
+                                size: 14, 
+                                weight: "bold"
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+        
+    </script>
+</body>
+</html>

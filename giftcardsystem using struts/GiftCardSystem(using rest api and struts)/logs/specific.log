@@ -1,0 +1,21 @@
+2025-03-03 16:34:14,916 INFO  [main] interceptor.SessionInterceptor (SessionInterceptor.java:32) - SessionInterceptor initialized.
+2025-03-03 16:34:14,973 INFO  [main] interceptor.SessionInterceptor (SessionInterceptor.java:32) - SessionInterceptor initialized.
+2025-03-03 16:35:13,930 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:14,046 ERROR [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:56) - Invalid token received.
+2025-03-03 16:35:14,052 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:65) - Unauthorized access attempt. Responded with 401.
+2025-03-03 16:35:31,351 INFO  [qtp1565601243-34] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:31,457 INFO  [qtp1565601243-34] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user
+2025-03-03 16:35:33,467 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:33,482 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user
+2025-03-03 16:35:40,838 INFO  [qtp1565601243-34] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:40,848 INFO  [qtp1565601243-34] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user
+2025-03-03 16:35:46,101 INFO  [qtp1565601243-44] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:46,111 INFO  [qtp1565601243-44] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user
+2025-03-03 16:35:49,142 INFO  [qtp1565601243-37] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:49,149 INFO  [qtp1565601243-37] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user
+2025-03-03 16:35:52,172 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:52,183 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user
+2025-03-03 16:35:58,735 INFO  [qtp1565601243-34] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:35:58,744 INFO  [qtp1565601243-34] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user
+2025-03-03 16:36:01,119 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:37) - Session interceptor invoked.
+2025-03-03 16:36:01,128 INFO  [qtp1565601243-41] interceptor.SessionInterceptor (SessionInterceptor.java:86) - Valid token for userId: 3 with userType: user

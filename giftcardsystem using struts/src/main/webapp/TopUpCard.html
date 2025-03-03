@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top-Up</title>
+
+<link rel="stylesheet" href="css/headerStyle.css">
+
+<link rel="stylesheet" href="css/tableStyle.css">
+
+<link rel="stylesheet" href="css/form-table.css">
+</head>
+<body>
+	<div class="header">
+		<div class="nav-links">
+			<a href="UserHome" class="nav-link">home</a>
+			<a href="PurchaseChart" class="nav-link">chart</a> <a href="CreateCard"
+				class="nav-link">Create Gift Card</a> <a href="ViewCard"
+				class="nav-link">View Cards</a> <a href="ViewTransaction"
+				class="nav-link">View Card Transactions</a> <a href="TopUpCard"
+				class="nav-link">Top-Up Card</a> <a href="BlockCard"
+				class="nav-link">Block Card</a> <a href="ChangePassword"
+				class="nav-link">Change Password</a><a href="#" onclick="logout()">Logout</a>
+		</div>
+	</div>
+	<h2>Available Gift Cards</h2>
+
+
+
+	<div class="main-container">
+		<div class="table-container">
+			<table>
+				<thead>
+					<tr>
+						<th>Gift Card ID</th>
+						<th>Card Number</th>
+						<th>PIN</th>
+						<th>Balance</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="giftCardTableBody">
+
+				</tbody>
+			</table>
+
+		</div>
+
+		<div class="form-container">
+			<div id="topup-form-container">
+				<form id="topup-form">
+					<h3>Top-Up Gift Card</h3>
+					<label for="giftCardIdInput">Card ID:</label> <input type="text"
+						id="giftCardIdInput" name="giftCardId" readonly /> <br /> <label
+						for="amount">Amount:</label> <input type="number" id="amount"
+						name="amount" placeholder="Enter amount" required /> <br />
+					<button type="submit">Submit</button>
+				</form>
+			</div>
+		</div>
+
+	</div>
+
+
+	<script type="text/javascript" src="js/userScript.js"></script>
+	<script>
+	
+
+
+    window.onload = showGiftCards;
+	
+
+	function logout() {
+	    sessionStorage.removeItem("token");
+	    sessionStorage.removeItem("decodedToken");
+	    window.location.href = "login.html";
+	}
+
+        
+        async function showGiftCards() {
+        	await validateToken();
+/* 
+            const formData = new URLSearchParams();
+            formData.append('status', 1); */
+
+            const token = sessionStorage.getItem("token");
+     
+            try {
+                const response = await fetch("http://localhost:8080/GiftCardSystem/user/cards/1", {
+                	method:"GET",
+                	headers: {
+
+                        "Authorization": "Bearer " + token
+                        }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const responseText = await response.text(); 
+                console.log("Raw Response:", responseText);
+
+                const data = JSON.parse(responseText);
+
+                if (!data || !data.giftCardList) {
+                    throw new Error("Invalid response format");
+                }
+
+                const giftCardList = data.giftCardList;
+
+                if (Array.isArray(giftCardList)) {
+                    const giftCardTableBody = document.getElementById("giftCardTableBody");
+                    giftCardTableBody.innerHTML = '';
+                    giftCardList.forEach(giftCard => {
+                        let row = `<tr>
+                            <td>${giftCard.giftCardId}</td>
+                            <td>${giftCard.giftCardNumber}</td>
+                            <td>${giftCard.pin}</td>
+                            <td>${giftCard.balance}</td>
+                            <td>${giftCard.status}</td>
+                            <td><button onclick="openTopUpForm(${giftCard.giftCardId})">Top-Up</button></td>
+                        </tr>`;
+                        giftCardTableBody.innerHTML += row;
+                    });
+                } else {
+                    console.error('giftCardList is not an array or is undefined');
+                    alert('Failed to load gift cards');
+                }
+            } catch (error) {
+                console.error('Error fetching gift cards:' +  error);
+                alert('Failed to load gift cards');
+            }
+        }
+        
+        
+        function openTopUpForm(giftCardId) {
+            document.getElementById('giftCardIdInput').value = giftCardId;
+            document.getElementById('topup-form-container').style.display = 'block';
+        }
+        
+        document.getElementById('topup-form').addEventListener('submit', async function (event) {
+            event.preventDefault(); 
+
+            await validateToken();
+            const giftCardId = document.getElementById('giftCardIdInput').value;
+            const amount = document.getElementById('amount').value;
+           
+            console.log(giftCardId);
+            
+            if(giftCardId == ""){
+            	alert("choose a card");
+            	return;
+            }
+            
+            const formData = new URLSearchParams();/* 
+            formData.append('cardId', giftCardId); */
+            formData.append('amount', amount);
+            
+            
+            try {
+            	   const token = sessionStorage.getItem("token");
+            	   
+                const response = await fetch(`http://localhost:8080/GiftCardSystem/user/cards/${giftCardId}`, {
+                    method: 'PUT',
+                    headers: {
+                        "Authorization": "Bearer " + token,
+
+                        "Content-Type": "application/x-www-form-urlencoded" // if you're sending form data
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const responseText = await response.text();
+                console.log("response: " + responseText);
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error('Invalid JSON response');
+                }
+
+                
+                console.log(data); 
+                
+                alert(data.success || data.error);
+                
+                if(data.success){
+                	
+                	 var form = document.getElementById("topup-form");
+			            form.reset();
+			            showGiftCards();
+                }
+                
+            } catch (error) {
+                console.error('Error:' +  error);
+
+                alert("error occured");
+            }
+        });
+
+       
+    </script>
+</body>
+</html>

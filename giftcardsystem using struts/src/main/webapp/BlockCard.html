@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<link rel="stylesheet" href="css/headerStyle.css">
+
+<link rel="stylesheet" href="css/tableStyle.css">
+</head>
+<body>
+
+	<div class="header">
+		<div class="nav-links">
+			<a href="UserHome" class="nav-link">home</a>
+			<a href="PurchaseChart" class="nav-link">chart</a> <a href="CreateCard"
+				class="nav-link">Create Gift Card</a> <a href="ViewCard"
+				class="nav-link">View Cards</a> <a href="ViewTransaction"
+				class="nav-link">View Card Transactions</a> <a href="TopUpCard"
+				class="nav-link">Top-Up Card</a> <a href="BlockCard"
+				class="nav-link">Block Card</a> <a href="ChangePassword"
+				class="nav-link">Change Password</a><a href="#" onclick="logout()">Logout</a>
+		</div>
+	</div>
+
+	<div class="table-container">
+		<table>
+			<thead>
+				<tr>
+					<th>Gift Card ID</th>
+					<th>Card Number</th>
+					<th>PIN</th>
+					<th>Balance</th>
+					<th>Status</th>
+					<th>Block</th>
+				</tr>
+			</thead>
+			<tbody id="giftCardTableBody">
+
+			</tbody>
+		</table>
+	</div>
+
+
+
+	<script type="text/javascript" src="js/userScript.js"></script>
+
+	<script type="text/javascript">
+	
+
+
+	window.onload =  showGiftCards;
+	
+
+	   async function showGiftCards() {
+		   await validateToken();
+		   
+       	
+/* 
+           const formData = new URLSearchParams();
+           formData.append('status', 1);
+           
+ */
+           const token = sessionStorage.getItem("token");
+    
+           try {
+               const response = await fetch("http://localhost:8080/GiftCardSystem/user/cards/1", {
+               	method:"GET",
+               	headers: { /* "Content-Type": "application/x-www-form-urlencoded", */
+
+                       "Authorization": "Bearer " + token
+                       }/* ,
+    	            body: formData */
+               });
+
+               if (!response.ok) {
+                   throw new Error(`HTTP error! Status: ${response.status}`);
+               }
+
+               const responseText = await response.text(); 
+               console.log("Raw Response:", responseText);
+
+               const data = JSON.parse(responseText);
+
+               if (!data || !data.giftCardList) {
+            	   alert("Invalid response format");
+            	   return ;
+               }
+
+               const giftCardList = data.giftCardList;
+
+               if (Array.isArray(giftCardList)) {
+                   const giftCardTableBody = document.getElementById("giftCardTableBody");
+                   giftCardTableBody.innerHTML = '';
+                   giftCardList.forEach(giftCard => {
+                       let row = `<tr  data-id = ${giftCard.giftCardId}>
+                           <td>${giftCard.giftCardId}</td>
+                           <td>${giftCard.giftCardNumber}</td>
+                           <td>${giftCard.pin}</td>
+                           <td>${giftCard.balance}</td>
+                           <td>${giftCard.status}</td>
+                           <td><button onclick="blockCard(${giftCard.giftCardId})">block</button></td>
+                       </tr>`;
+                       giftCardTableBody.innerHTML += row;
+                   });
+               } else {
+                   console.error('giftCardList is not an array or is undefined');
+                   alert('Failed to load gift cards');
+               }
+           } catch (error) {
+               console.error('Error fetching gift cards:', error);
+               alert('Failed to load gift cards');
+           }
+       }
+	      
+	 async function blockCard(giftCardId) {
+		    console.log(giftCardId);
+		    
+		    await validateToken();
+		    const formData = new URLSearchParams();/* 
+		    formData.append('cardId', giftCardId); */
+		    formData.append('status', 1);
+		    
+		    try {
+
+
+		        const token = sessionStorage.getItem("token");
+		        const response = await fetch(`http://localhost:8080/GiftCardSystem/user/cards/${giftCardId}`, {
+		            method: 'DELETE',
+		            headers: {
+	                     "Authorization": "Bearer " + token,
+
+	                     "Content-Type": "application/x-www-form-urlencoded" 
+	                 },
+		            body: formData
+		        });
+
+		        if (!response.ok) {
+		            throw new Error(`HTTP error! Status: ${response.status}`);
+		        }
+
+		        const responseText = await response.text();
+		        console.log(responseText);
+		        let data;
+		        try {
+		            data = JSON.parse(responseText);
+		        } catch (e) {/* 
+		            throw new Error('Invalid JSON response'); */
+		            alert("try again");
+		            console.log(e);
+		        }
+
+		        if (data.success) {
+		        	alert(data.success);
+		            // Remove the row from the table
+		            document.querySelector(`tr[data-id="${giftCardId}"]`)?.remove();
+
+		            /* if (rowToRemove) {
+		                rowToRemove.remove();
+
+				        alert('card removed successfully..');
+		            }  */
+		        } else if (data.error) {
+		            alert(data.error);
+		        }
+		    } catch (error) {
+		        console.error('Error:', error);
+		        alert('An unexpected error occurred');
+		    }
+		}
+
+	
+	</script>
+</body>
+</html>

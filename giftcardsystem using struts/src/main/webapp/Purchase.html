@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/form-table.css">
+    <style>
+        .form-container {
+            margin-top: 200px;
+        }
+        
+        #category{
+        width:200px;
+        }
+        
+    </style>
+</head>
+
+<body>
+
+
+    <center>
+    <div class="form-container">
+        <form id="purchaseForm">
+            <h2>Purchase</h2>
+            <label for="cardNumber">Card Number</label><br>
+            <input type="text" id="cardNumber" placeholder="Enter the card number" required><br><br>
+
+            <label for="pin">Pin</label><br>
+            <input type="password" id="pin" placeholder="Pin" required><br><br>
+
+            <label for="amount">Amount</label><br>
+            <input type="number" id="amount" placeholder="Enter your amount" required><br><br>
+
+            <label for="category">Category</label><br>
+            <select id="category" required>
+                <option value="entertainment">Entertainment</option>
+                <option value="medicine">Medicine</option>
+                <option value="clothing">Clothing</option>
+                <option value="groceries">Groceries</option>
+                <option value="travel">Travel</option>
+                <option value="education">Education</option>
+                <option value="food">Food</option>
+                <option value="other">Other</option>
+            </select><br><br>
+
+            <button type="submit">Purchase</button><br>
+            <a href="Login">Login?</a>
+        </form>
+    </div>
+    
+    </center>
+
+    <script>
+        document.getElementById("purchaseForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const cardNumber = document.getElementById("cardNumber");
+            const pin = document.getElementById("pin");
+            const amount = document.getElementById("amount");
+            const category = document.getElementById("category");
+
+            const formData = new URLSearchParams();
+            formData.append("cardNumber", cardNumber.value);
+            formData.append("pin", pin.value);
+            formData.append("amount", amount.value);
+            formData.append("category", category.value);
+
+            try {
+                const response = await fetch("http://localhost:8080/GiftCardSystem/purchase", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    alert("Error occurred, try again...");
+                    return;
+                }
+
+                const data = await response.json();
+                console.log("Fetched Data:", data);
+
+                if (data.success) {
+                    alert(data.success);
+                    cardNumber.value = "";
+                    pin.value = "";
+                    amount.value = "";
+                    category.value = "food"; // Reset to default
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert("Enter valid card number and pin");
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
