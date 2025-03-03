@@ -11,11 +11,8 @@ This repository contains four different implementations of the Gift Card System,
 - Uses **MySQL** for persistent storage.  
 - Suitable for systems requiring data persistence beyond runtime.  
 
-### **3. SERVLET-BASED (MYSQL AS DATABASE)**  
-- Web-based implementation using **Java Servlets**.  
-- Uses **MySQL** for backend storage.  
 
-### **4. STRUTS-BASED (MYSQL + REDIS FOR CACHING)**  
+### **3. STRUTS-BASED (MYSQL + REDIS FOR CACHING)**  
 - Built using the **Struts** framework.  
 - Uses **MySQL** for persistent storage.  
 - **Redis** is integrated for caching frequently accessed data to improve performance.  
